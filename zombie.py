@@ -143,6 +143,13 @@ class Zombie:
         else:
             return BehaviorTree.RUNNING
 
+    def move_from_boy(self, r=0.5):
+        # 여기를 채우시오.
+        self.move_little_to(common.boy.x * -1, common.boy.y * -1)
+        if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
 
     def get_patrol_location(self):
         # 여기를 채우시오.
@@ -182,14 +189,14 @@ class Zombie:
         c3 = Condition('좀비의 공이 소년의 공보다 적은가?', self.compare_ball_count2) # 소년보다 공이 적은 경우
 
         a4 = Action('소년을 추적', self.move_to_boy)
-        a5 = Action('소년으로부터 도망', self.move_to, 7.0)
+        a5 = Action('소년으로부터 도망', self.move_from_boy)
         root = chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, c2, a4)
         root = run_boy_if_nearby = Sequence('소년이 가까이 있으면 소년으로부터 도망', c1, c3, a5)
 
 
         # 소년이 근처에
-        # 추적하거나 배회하는 버전
-        root = chase_boy_if_nearby_or_wander = Selector('추적과 배회', chase_boy_if_nearby, wander)
+        # 추적하거나 도망가거나 배회하는 버전
+        root = chase_boy_if_nearby_or_wander = Selector('추적과 배회', chase_boy_if_nearby, run_boy_if_nearby, wander)
 
         # # 순찰하는 버전
         # a5 = Action('순찰 위치 가져오기', self.get_patrol_location)
