@@ -112,8 +112,8 @@ class Zombie:
 
     def move_to(self, r=0.5):
         # 여기를 채우시오.
-        self.state='Walk'       #디버그출력을 위해 해둔거임
-        self.move_little_to(self.tx, self.ty)#목표지점까지 살짝 이동
+        self.state='Walk'       # 디버그출력을 위해 해둔거임
+        self.move_little_to(self.tx, self.ty) # 목표지점까지 살짝 이동
         if self.distance_less_than(self.x, self.y, self.tx, self.ty, r):
             return BehaviorTree.SUCCESS
         else:
@@ -157,6 +157,13 @@ class Zombie:
         else:
             return BehaviorTree.FAIL
 
+    def compare_ball_count2(self):
+        # 여기를 채우시오.
+        if self.ball_count < common.boy.ball_count:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
+
     def build_behavior_tree(self):
         # 여기를 채우시오.
         # 목표 지점을 설정하는 Action노드 생성.
@@ -168,11 +175,17 @@ class Zombie:
         a3 = Action('Set Random Location', self.set_random_location)
         root = wander = Sequence('Wander', a3, a2)
 
-        #소년이 근처에 있으면 소년을 추적하는 버전
+        #소년이 근처에 있고 소년보다 공이 많으면 소년을 추적
+        #소년이 근처에 있고 소년보다 공이 적으면 소년으로부터 도망
         c1 = Condition('소년이 근처에 있는가?', self.if_boy_nearby, 7.0)
-        c2 = Condition('좀비의 공이 소년의 공보다 많은가?', self.compare_ball_count)
+        c2 = Condition('좀비의 공이 소년의 공보다 많은가?', self.compare_ball_count) # 소년보다 공이 많은 경우
+        c3 = Condition('좀비의 공이 소년의 공보다 적은가?', self.compare_ball_count2) # 소년보다 공이 적은 경우
+
         a4 = Action('소년을 추적', self.move_to_boy)
+        a5 = Action('소년으로부터 도망', self.move_to, 7.0)
         root = chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, c2, a4)
+        root = run_boy_if_nearby = Sequence('소년이 가까이 있으면 소년으로부터 도망', c1, c3, a5)
+
 
         # 소년이 근처에
         # 추적하거나 배회하는 버전
